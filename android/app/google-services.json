@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207601474404",
+    "project_id": "mynotes-prodata",
+    "storage_bucket": "mynotes-prodata.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207601474404:android:f22ca60459a59050c57871",
+        "android_client_info": {
+          "package_name": "br.prodata.mynotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCd0HftGs4YqfPXkNwZDfahpwHDxNXI_MU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
