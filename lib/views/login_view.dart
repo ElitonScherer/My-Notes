@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilites/show_error_dialog.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -125,15 +125,24 @@ class _LoginViewState extends State<LoginView> {
                       email: email,
                       password: password,
                     );
-                    devtools.log(userCredential.toString());
                     Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false,);
               } on FirebaseAuthException catch (e) {
                     if (e.code == 'invalid-credential') {
-                      devtools.log('invalid credential, please try again');
-                    }
-                  }
+                     await showErrorDialog(context, 'Invalid Credential',);
+                    }else if (e.code=='channel-error'){
+                      await showErrorDialog(context, 'Fill in the fields',);
 
-                },
+                    }else if(e.code=='invalid-email'){
+
+                      await showErrorDialog(context, 'Invalid Email',);
+                    }else{
+                      await showErrorDialog(context, 'Error: ${e.code}',);
+
+                    }
+                } catch(e){
+                    await showErrorDialog(context, e.toString());
+                }
+              },
 
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
@@ -176,3 +185,4 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+
