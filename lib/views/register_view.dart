@@ -1,7 +1,8 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilites/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -17,8 +18,8 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   void initState() {
-    _email=TextEditingController();
-    _password=TextEditingController();
+    _email = TextEditingController();
+    _password = TextEditingController();
     super.initState();
   }
 
@@ -32,18 +33,22 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:const Text('Register',style: TextStyle(color: Colors.white),),backgroundColor: Colors.blueAccent,),
+      appBar: AppBar(
+        title: const Text(
+          'Register',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Sign Up for Your Accountt',
-      
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
-      
               ),
             ),
             const SizedBox(height: 30),
@@ -87,21 +92,19 @@ class _RegisterViewState extends State<RegisterView> {
                         hintText: 'Enter your password here',
                         hintStyle: TextStyle(color: Colors.grey),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
                             borderSide: BorderSide(
                               color: Colors.grey,
                               width: 1.0,
-                            )
-                        ),
+                            )),
                         focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
                             borderSide: BorderSide(
                               color: Colors.blue,
                               width: 2.0,
-                            )
-                        )
-      
-                    ),
+                            ))),
                   ),
                 ],
               ),
@@ -112,31 +115,44 @@ class _RegisterViewState extends State<RegisterView> {
                 try {
                   final email = _email.text;
                   final password = _password.text;
-      
-                  await FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
-                      email: email,
-                      password: password
+
+                  await AuthService.firebase().createUser(
+                    email: email,
+                    password: password,
                   );
-                  final user=FirebaseAuth.instance.currentUser;
-                  await user?.sendEmailVerification();
+                  final user = AuthService.firebase().currentUser;
+                  await AuthService.firebase().sendEmailVerification();
 
                   Navigator.of(context).pushNamed(verifyEmailRoute);
+                }on ChannelErrorAuthException catch(e){
+                  await showErrorDialog(
+                    context,
+                    'Fill in the fields before proceeding',
+                  );
+                }on InvalidEmailAuthException catch(e) {
+                  await showErrorDialog(
+                    context,
+                    'Invalid Email',
+                  );
 
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'channel-error') {
-                    await showErrorDialog(context, 'Fill in the fields before proceeding',);
-                  } else if (e.code == 'invalid-email') {
-                    await showErrorDialog(context, 'Invalid Email',);
-                  } else if (e.code == 'weak-password') {
-                    await showErrorDialog(context, 'Invalid password, enter at least 6 characters',);
-                  } else if (e.code == 'email-already-in-use') {
-                    await showErrorDialog(context, 'This email is already in use',);
-                  }else{
-                    await showErrorDialog(context, 'Error: ${e.code}');
-                  }
-                }catch (e){
-                  await showErrorDialog(context,e.toString(),);
+                }on WeakPasswordAuthException catch(e) {
+                  await showErrorDialog(
+                    context,
+                    'Invalid password, enter at least 6 characters',
+                  );
+
+                }on EmailAlreadyInUseAuthException catch(e) {
+                  await showErrorDialog(
+                    context,
+                    'This email is already in use',
+                  );
+
+                } on GenericAuthException catch(e){
+
+                  await showErrorDialog(
+                    context,
+                    'Failed to register',
+                  );
                 }
               },
               style: TextButton.styleFrom(
@@ -147,29 +163,28 @@ class _RegisterViewState extends State<RegisterView> {
                   borderRadius: BorderRadius.all(Radius.circular(23.0)),
                 ),
                 foregroundColor: Colors.white,
-                textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18
-                ),
+                textStyle:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 elevation: 5,
                 shadowColor: Colors.black.withOpacity(0.45),
               ),
-      
               child: const Text('Register'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false,);
-
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  loginRoute,
+                  (route) => false,
+                );
               },
-              child: const Text('Are you registered? Log in to your account!',
+              child: const Text(
+                'Are you registered? Log in to your account!',
                 style: TextStyle(
                   decoration: TextDecoration.underline,
                   decorationColor: Colors.blue,
                   decorationThickness: 2,
                 ),
               ),
-
             )
           ],
         ),
@@ -177,5 +192,3 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 }
-
-
