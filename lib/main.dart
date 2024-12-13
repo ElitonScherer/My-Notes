@@ -16,7 +16,6 @@ void main() {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-
     home: const HomePage(),
     routes: {
       loginRoute:(context) => const LoginView(),
@@ -53,11 +52,8 @@ class HomePage extends StatelessWidget {
           default:
             return const CircularProgressIndicator();
         }
-
       },
-
     );
-
   }
 }
 
